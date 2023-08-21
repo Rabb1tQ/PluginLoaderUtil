@@ -1,0 +1,3 @@
+com\rabbitq\PluginLoader.class
+com\rabbitq\IPluginService.class
+com\rabbitq\PluginMain.class
