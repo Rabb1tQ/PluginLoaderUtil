@@ -1,6 +1,13 @@
 package com.rabbitq;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONReader;
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -21,7 +28,12 @@ public class PluginLoader {
      */
     public static final String PLUGIN_PATH = "plugins";
 
-    public static List<IPluginService> loadPlugins() throws MalformedURLException {
+    /*
+     *@Author：RabbitQ
+     *@CreateData：2023/8/21 23:09
+     * 遍历加载插件
+     */
+    public List<IPluginService> loadPlugins() throws MalformedURLException {
         List<IPluginService> plugins = new ArrayList<>();
 
         File parentDir = new File(PLUGIN_PATH);
@@ -48,5 +60,33 @@ public class PluginLoader {
             plugins.add(iPluginService);
         }
         return plugins;
+    }
+
+    /*
+     *@Author：RabbitQ
+     *@CreateData：2023/8/25 0:32
+     *decription：单独加载指定插件
+     */
+    public IPluginService loadPlugin(String pluginName) throws Exception {
+        IPluginService pluginService = null;
+        // 获取 JSON 文件的输入流
+        InputStream inputStream = JSONReader.class.getResourceAsStream("/plugin.json");
+
+        String jsonText = null;
+        jsonText = IOUtils.toString(inputStream, "UTF-8");
+
+        // 使用 FastJSON 解析 JSON 字符串
+        JSONObject jsonObject = JSON.parseObject(jsonText);
+
+        // 可以使用 jsonObject 获取数据
+        JSONObject jsonPlugin = jsonObject.getJSONObject("Plugin1");
+        String address=jsonPlugin.getString("address");
+        // 关闭输入流
+        inputStream.close();
+
+        URL[] urls = new URL[]{new URL("file:" +address)};
+        URLClassLoader urlClassLoader = new URLClassLoader(urls);
+        ServiceLoader<IPluginService> serviceLoader = ServiceLoader.load(IPluginService.class, urlClassLoader);
+        return serviceLoader.iterator().next();
     }
 }

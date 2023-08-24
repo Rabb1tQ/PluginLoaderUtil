@@ -1,0 +1,8 @@
+{
+  "Plugin1": {
+    "address": "plugins/Plugin1.jar"
+  },
+  "Plugin2": {
+    "address": "plugins/Plugin2.jar"
+  }
+}
